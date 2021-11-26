@@ -10,9 +10,9 @@
 
  /*
  FROM: http://www.classic-games.com/atari2600/stella.html
- 
+
  3.0 Synchronization
-     
+
   3.1 Horizontal Timing
      When the electron beam scans across the TV screen and
      reaches the right edge, it must be turned off and moved
@@ -29,7 +29,7 @@
      160 + 68 = 228 color clocks.  Again, all the horizontal
      timing is taken care of by the TIA without assistance from
      the microprocessor.
-     
+
   3.2 Microprocessor Synchronization
      The microprocessor's clock is the 3.58 MHz oscillator
      divided by 3, so one machine cycle is 3 color clocks.
@@ -48,11 +48,11 @@
      could be updated every 2 or 3 lines.  The advantage is the
      programmer gains more time to execute software, but at a
      price paid with lower vertical resolution in the graphics.
-     
+
      NOTE:  WSYNC and all the following addresses' bit
      structures are itemized in the TIA hardware manual.  The
      purpose of this document is to make them understandable.
-     
+
   3.3 Vertical timing
      When the electron beam has scanned 262 lines, the TV set
      must be signaled to blank the beam and position it at the
@@ -61,7 +61,7 @@
      for at least 3 scan lines.  This is accomplished by writing
      a 1 in D1 of VSYNC to turn it on, count at least 2 scan
      lines, then write a 0 to D1 of VSYNC to turn it off.
-     
+
      To physically turn the beam off during its repositioning
      time, the TV set needs 37 scan lines of vertical blanks
      signal from the TIA.  This is accomplished by writing a 1
@@ -69,14 +69,14 @@
      0 to D1 of VBLANK to turn it off.  The microprocessor is
      of course free to execute other software during the
      vertical timing commands, VSYNC and VBLANK.
- 
- 
+
+
  */
- 
- 
- 
- 
-`include "tia.h"
+
+
+
+
+`include "TIA.h"
 
 module TIA(A, // Address bus input
 			Din, // Data bus input
@@ -100,7 +100,7 @@ module TIA(A, // Address bus input
 			AUD1, //audio pin 1
 			audv0, //audio volume for use with external xformer module
 			audv1); //audio volume for use with external xformer module
-			
+
    input [5:0] A;
    input [7:0] Din;
    output [7:0] Dout;
@@ -127,28 +127,28 @@ module TIA(A, // Address bus input
    reg [7:0] 	hCount;
    reg [3:0] 	hCountReset;
 
-	// 30Khz clock for AUDIO 
+	// 30Khz clock for AUDIO
    reg clk_30;
    reg [7:0] clk_30_count;
-	
+
    wire [3:0] Idump;
    // Latched input registers and update
    wire [1:0] latchedInputsValue;
    reg 	      inputLatchEnabled, inputLatchReset;
    reg [1:0]  latchedInputs;
-	
+
 	// DEBUG //
 	output [9:0] Leds;			// debugs
 	output [7:0] HEX4, HEX5;
-	
-	
+
+
 	//assign Leds[0] = collisionLatch[14];
 	//assign Leds[1] = collisionLatch[13];
 	//assign Leds[2] = collisionLatchReset;
-	
+
 	assign Leds[0] = AUD0;
 	assign Leds[1] = audv0;
-	
+
    // Pixel counter update
    always @(posedge MASTERCLK /*or negedge RES_n*/) /// testing N S 08-02
    begin
@@ -161,13 +161,13 @@ module TIA(A, // Address bus input
 			latchedInputs <= 2'b11;
 		end
 		else begin
-		
+
 			if (inputLatchReset)
 				 latchedInputs <= 2'b11;
 			 else
 				 latchedInputs <= latchedInputs & Ilatch;
-		 
-	
+
+
 			if (clk_30_count == 57) begin
 				 clk_30 <= ~clk_30;
 				 clk_30_count <= 0;
@@ -185,7 +185,7 @@ module TIA(A, // Address bus input
 			 hCountReset[3:1] <= hCountReset[2:0];
 		end
    end // end always
-	
+
    assign HSYNC = (hCount >= 8'd20) && (hCount </*=*/ 8'd36);
    assign HBLANK = (hCount < 8'd68);
 
@@ -209,23 +209,23 @@ module TIA(A, // Address bus input
    reg 	      player0VertDelay, player1VertDelay, ballVertDelay;
    reg [3:0]  audc0, audc1;
    reg [4:0]  audf0, audf1;
-	
+
    // Pixel number calculation
    wire [7:0] pixelNum;
- 
-   //audio control
-	audio audio_ctrl(.AUDC0(audc0), 
-						  .AUDC1(audc1),
-						  .AUDF0(audf0), 
-						  .AUDF1(audf1),
-						  .CLK_30(clk_30), //30khz clock
-						  .AUD0(AUD0),
-						  .AUD1(AUD1));
+
+//;;TEMP_DISABLED MISSING_AUDIO: //audio control
+//;;TEMP_DISABLED MISSING_AUDIO: audio audio_ctrl(.AUDC0(audc0),
+//;;TEMP_DISABLED MISSING_AUDIO: 					  .AUDC1(audc1),
+//;;TEMP_DISABLED MISSING_AUDIO: 					  .AUDF0(audf0),
+//;;TEMP_DISABLED MISSING_AUDIO: 					  .AUDF1(audf1),
+//;;TEMP_DISABLED MISSING_AUDIO: 					  .CLK_30(clk_30), //30khz clock
+//;;TEMP_DISABLED MISSING_AUDIO: 					  .AUD0(AUD0),
+//;;TEMP_DISABLED MISSING_AUDIO: 					  .AUD1(AUD1));
 
 	assign pixelNum = (hCount >= 8'd68) ? (hCount - 8'd68) : 8'd227;
- 
 
-   
+
+
    // Pixel tests. For each pixel and screen object, a test is done based on the
    // screen objects register to determine if the screen object should show on that
    // pixel. The results of all the tests are fed into logic to pick which displayed
@@ -233,7 +233,7 @@ module TIA(A, // Address bus input
    // Playfield pixel test
    wire [5:0] pfPixelNum;
    wire       pfPixelOn, pfLeftPixelVal, pfRightPixelVal;
-	
+
    assign pfPixelNum = pixelNum[7:2];							// each bit on playfield is 4 pixels [NS]
    assign pfLeftPixelVal  = pfGraphic[pfPixelNum];
    assign pfRightPixelVal = (pfReflect == 1'b0) ? pfGraphic[pfPixelNum - 6'd20]:
@@ -245,18 +245,18 @@ module TIA(A, // Address bus input
    wire [7:0] pl0Mask, pl0MaskDel;
 	reg  [7:0] player0Gfx_2clk;							// NS 05-03 GrandPrix... wait 2 clocks before writing player0Graphics
 	reg        HBLANKdelay;
-   
+
 	assign pl0MaskDel = (player0VertDelay)? R_player0Graphic : player0Gfx_2clk;
    assign pl0Mask = (!player0Reflect)? pl0MaskDel : {pl0MaskDel[0], pl0MaskDel[1],
 																	  pl0MaskDel[2], pl0MaskDel[3],
 																	  pl0MaskDel[4], pl0MaskDel[5],
 																	  pl0MaskDel[6], pl0MaskDel[7]};
    // NS objPixelOn objpl0 (pixelNum, player0Pos, player0Size[2:0], pl0Mask, pl0PixelOn);
-	
+
 	//
 	// add 4 CLK2 delays on change of player pos using RES
-	reg [7:0] r1_player0Pos, r2_player0Pos, r3_player0Pos; 
-	reg [7:0] r1_player1Pos, r2_player1Pos, r3_player1Pos; 
+	reg [7:0] r1_player0Pos, r2_player0Pos, r3_player0Pos;
+	reg [7:0] r1_player1Pos, r2_player1Pos, r3_player1Pos;
 	reg pl0Reset, pl1Reset;
 
 	always @ (posedge CLK2)
@@ -293,7 +293,7 @@ module TIA(A, // Address bus input
    wire       mis0PixelOn, mis0PixelOut;
    wire [7:0] mis0ActualPos;
    reg  [7:0] mis0Mask;
-	
+
    always @(player0Size)
    begin
 		case(player0Size[4:3])
@@ -303,16 +303,16 @@ module TIA(A, // Address bus input
 		  2'd3: mis0Mask <= 8'hFF;
 		endcase
    end // end always
-	
+
    assign mis0ActualPos = (missile0Lock)? player0Pos : missile0Pos;
    objPixelOn objpix1 (pixelNum, mis0ActualPos, player0Size[2:0], mis0Mask, mis0PixelOut);
    assign mis0PixelOn = mis0PixelOut && missile0Enable;
-   
+
 	// Missile 1 pixel test
    wire mis1PixelOn, mis1PixelOut;
    wire [7:0] mis1ActualPos;
    reg [7:0]  mis1Mask;
-   
+
 	always @(player1Size)
    begin
 		case(player1Size[4:3])
@@ -330,7 +330,7 @@ module TIA(A, // Address bus input
 	/*
    testObjPixelOn objMissile1 (pixelNum, mis1ActualPos, mis1PixelOut);
 	*/
-	
+
    assign mis1PixelOn = mis1PixelOut /*&*/& missile1Enable;			// testing only one & NS 14-02-17
    // Ball pixel test
    wire ballPixelOut, ballPixelOn, ballEnableDel;
@@ -348,10 +348,10 @@ module TIA(A, // Address bus input
    end // end always
 
    objPixelOn objball (pixelNum, ballPos, 3'd0, ballMask, ballPixelOut);
-	
+
    assign ballEnableDel = ((ballVertDelay)? R_ballEnable : ballEnable);
    assign ballPixelOn = ballPixelOut && ballEnableDel;
-	
+
    // Playfield color selection
    // The programmer can select a unique color for the playfield or have it match
    // the player's sprites colors
@@ -369,7 +369,7 @@ module TIA(A, // Address bus input
 		else
 			pfActualColor <= pfColor;
    end // end always
-	
+
    // Final pixel color selection
    reg [7:0] pixelColor;
    assign COLOROUT = (HBLANK || HBLANKdelay) ? 8'b0 : pixelColor;				// NS 07-03-17
@@ -392,36 +392,36 @@ module TIA(A, // Address bus input
 				 pixelColor <= pfActualColor;
 		  else
 				 pixelColor <= bgColor;
-				 
+
 		  // NS testing
 		  //if( mis1PixelOn || mis0PixelOn) pixelColor <= 9'd136;
-				 
-				 
+
+
 		end
 		// Otherwise, show the playfield in front of the players
 		else begin
 			if (pfPixelOn)
 			  pixelColor <= pfActualColor;
-	      // NS 
+	      // NS
 		   else if( ballPixelOn)
 				 pixelColor <= /*player0Color*/pfColor;
 			else if (pl0PixelOn || mis0PixelOn)
 			  pixelColor <= player0Color;
 		   else if (pl1PixelOn || mis1PixelOn)
 			  pixelColor <= player1Color;
-	      // NS 
+	      // NS
 		   else if( ballPixelOn)
 				 pixelColor <= /*player0Color*/pfColor;
 			else
 			  pixelColor <= bgColor;
 		end
-/*		
+/*
 		// HMOVE trick (see below)
 		if( HBLANKdelay)
 		begin
 			pixelColor <= 8'd0;
 		end
-*/		
+*/
    end // end always
 
 	//
@@ -453,12 +453,12 @@ module TIA(A, // Address bus input
 
    always @(hCount, wSyncReset)
    begin
-		if (hCount == 8'd3) 
+		if (hCount == 8'd3)
 			wSync <= 1'b0;
-		else if (wSyncReset && hCount > 8'd5)	
+		else if (wSyncReset && hCount > 8'd5)
 			wSync <= 1'b1;
    end // end always
-	
+
    assign RDY = ~wSync;
 
 	/*
@@ -470,13 +470,13 @@ module TIA(A, // Address bus input
 			latchedInputs <= latchedInputs & Ilatch;
 	end // end always
 	*/
-	
+
    assign latchedInputsValue = (inputLatchEnabled)? latchedInputs : Ilatch;
    // Dumped input registers update
    reg inputDumpEnabled;
    // was: assign Idump = (inputDumpEnabled)? 4'b0000 : 4'bzzzz;
    assign Idump = (inputDumpEnabled)? 4'b0000 : idump_in;
-	
+
 
 	//===============================
    //***   Software operations   ***
@@ -504,21 +504,21 @@ module TIA(A, // Address bus input
 			wSyncReset <= ({R_W_n, A[5:0]} == `WSYNC) && !wSync;
 			case({R_W_n, A[5:0]})
 			  // Collision latch reads
-			  `CXM0P, `BS_CXM0P: 	Dout <= {collisionLatch[1:0],6'b000000};
-			  `CXM1P, `BS_CXM1P: 	Dout <= {collisionLatch[3:2],6'b000000};
-			  `CXP0FB, `BS_CXP0FB: 	Dout <= {collisionLatch[5:4],6'b000000};
-			  `CXP1FB, `BS_CXP1FB: 	Dout <= {collisionLatch[7:6],6'b000000};
-			  `CXM0FB, `BS_CXM0FB: 	Dout <= {collisionLatch[9:8],6'b000000};
-			  `CXM1FB, `BS_CXM1FB: 	Dout <= {collisionLatch[11:10],6'b000000};
-			  `CXBLPF, `BS_CXBLPF: 	Dout <= {collisionLatch[12],7'b0000000};
-			  `CXPPMM, `BS_CXPPMM: 	Dout <= {collisionLatch[14:13],6'b000000};
+			  `CXM0P: 	Dout <= {collisionLatch[1:0],6'b000000};
+			  `CXM1P: 	Dout <= {collisionLatch[3:2],6'b000000};
+			  `CXP0FB: 	Dout <= {collisionLatch[5:4],6'b000000};
+			  `CXP1FB: 	Dout <= {collisionLatch[7:6],6'b000000};
+			  `CXM0FB: 	Dout <= {collisionLatch[9:8],6'b000000};
+			  `CXM1FB: 	Dout <= {collisionLatch[11:10],6'b000000};
+			  `CXBLPF: 	Dout <= {collisionLatch[12],7'b0000000};
+			  `CXPPMM: 	Dout <= {collisionLatch[14:13],6'b000000};
 			  // I/O reads
-			  `INPT0, `BS_INPT0: 	Dout <= {Idump[0], 7'b0000000};
-			  `INPT1, `BS_INPT1: 	Dout <= {Idump[1], 7'b0000000};
-			  `INPT2, `BS_INPT2: 	Dout <= {Idump[2], 7'b0000000};
-			  `INPT3, `BS_INPT3: 	Dout <= {Idump[3], 7'b0000000};
-			  `INPT4, `BS_INPT4: 	Dout <= {latchedInputsValue[0], 7'b0000000};
-			  `INPT5, `BS_INPT5: 	Dout <= {latchedInputsValue[1], 7'b0000000};
+			  `INPT0: 	Dout <= {Idump[0], 7'b0000000};
+			  `INPT1: 	Dout <= {Idump[1], 7'b0000000};
+			  `INPT2: 	Dout <= {Idump[2], 7'b0000000};
+			  `INPT3: 	Dout <= {Idump[3], 7'b0000000};
+			  `INPT4: 	Dout <= {latchedInputsValue[0], 7'b0000000};
+			  `INPT5: 	Dout <= {latchedInputsValue[1], 7'b0000000};
 			  // Video signals
 			  `VSYNC: VSYNC <= Din[1];
 			  `VBLANK: begin
@@ -552,31 +552,31 @@ module TIA(A, // Address bus input
 			  `PF0: r_pfGraphic[3:0] <= Din[7:4]; /*NS 05-03 see stella programming guide p. 39*/ //{ Din[4], Din[5], Din[6], Din[7] };
 			  `PF1: r_pfGraphic[11:4] <= {Din[0], Din[1], Din[2], Din[3], Din[4], Din[5], Din[6], Din[7]}; // Din[7:0];
 			  `PF2: r_pfGraphic[19:12] <= Din[7:0];  //{Din[0], Din[1], Din[2], Din[3], Din[4], Din[5], Din[6], Din[7]};
-			  `RESP0: 
+			  `RESP0:
 			   begin
-						player0Pos <= pixelNum + 2;   	// NS GALACTICA 22-2 didn't improve --- see below 
+						player0Pos <= pixelNum + 2;   	// NS GALACTICA 22-2 didn't improve --- see below
 						if( hCount <  8'd68)					// if beam still not visible -- take position as 0
 						   player0Pos <= 0;
-						
+
 						pl0Reset <= 1;
 			   end
-			  `RESP1: 
+			  `RESP1:
 			   begin
 						player1Pos <= pixelNum + 2;		// NS GALACTICA 22-2 didn't improve
 						if( hCount <  8'd68)					// if beam still not visible -- take position as 0
 						   player1Pos <= 0;
-							
+
 						pl1Reset <= 1;
 			   end
 			  `RESM0: missile0Pos <= pixelNum + 1;
-			  `RESM1: missile1Pos <= pixelNum + 1; 			
-			  `RESBL: 
+			  `RESM1: missile1Pos <= pixelNum + 1;
+			  `RESBL:
 			   begin
 					ballPos <= pixelNum /*- 3*/ - 1 + /*3*/1;					// added to make the missle shoot from middle of player...
 					if( hCount <  8'd68)				// if beam still not visible -- take position according to hCount instead, NS 06-03-17
 						ballPos <= hCount - 8'd68 + 8'd2;
 				end
-				// Audio controls 
+				// Audio controls
 			  `AUDC0: audc0 <= Din[3:0];
 			  `AUDC1: audc1 <= Din[3:0];
 			  `AUDF0: audf0 <= Din[4:0];
@@ -629,13 +629,13 @@ module TIA(A, // Address bus input
 					//------ NS 07-03-17 Grand Prix game is really pushing the limits here
 					if( ballPos - {{4{ballMotion[3]}},ballMotion[3:0]} >= 8'd227)
 						ballPos <= 0;
-					
-					// if HMOVE is called during HBLANK, 8 first pixels are also blank (see 
+
+					// if HMOVE is called during HBLANK, 8 first pixels are also blank (see
 					// http://www.atarihq.com/danb/files/TIA_HW_Notes.txt @ Playing with the HMOVE registers
 					if( HBLANK) begin
 						HBLANKdelay <= 1;
 					end
-					
+
 			  end
 			  // Motion register clear
 			  `HMCLR: begin
@@ -647,9 +647,9 @@ module TIA(A, // Address bus input
 					ballMotion <= 0; //Din[7:4];
 			  end
 			  `CXCLR:;
-			  
+
 			  default: Dout <= 8'b00000000;
-			  
+
 			endcase
 		end // end else
 		// If the chip is not enabled, do nothing
@@ -659,7 +659,7 @@ module TIA(A, // Address bus input
 			hCountReset[0] <= 1'b0;
 			wSyncReset <= 1'b0;
 			Dout <= 8'b00000000;
-			
+
 			// NS see below 22-2-17 Galaxian not properly working
 			if( HBLANK) begin
 				pl0Reset <= 0;
@@ -668,11 +668,11 @@ module TIA(A, // Address bus input
 			if( hCount >= (8'd68 + 8'd7)) HBLANKdelay <= 0;
 		end
   end // end always
-  
-  
-   SEG7_LUT seg4 ( HEX4, ballPos[3:0]);
-   SEG7_LUT seg5 ( HEX5, ballPos[7:4]);
-  
+
+
+//;;TEMP_DISABLED DEBUG_LED:    SEG7_LUT seg4 ( HEX4, ballPos[3:0]);
+//;;TEMP_DISABLED DEBUG_LED:    SEG7_LUT seg5 ( HEX5, ballPos[7:4]);
+
 endmodule
 
 // objPixelOn module
@@ -689,8 +689,8 @@ module objPixelOn(pixelNum, objPos, objSize, objMask, pixelOn);
    reg [2:0]   objMaskSel;
 	assign objIndex = pixelNum - objPos - 8'd1;
    assign objByteIndex = 9'b1 << (objIndex[7:3]);
-	
-	
+
+
    always @(objSize, objByteIndex)
    begin
 		case (objSize)
@@ -704,7 +704,7 @@ module objPixelOn(pixelNum, objPos, objSize, objMask, pixelOn);
 		  3'd7: objSizeOn <= (objByteIndex & 9'b00001111) != 0;
 		endcase
    end // end always
-	
+
    always @(objSize, objIndex)
    begin
 		case (objSize)
@@ -713,11 +713,11 @@ module objPixelOn(pixelNum, objPos, objSize, objMask, pixelOn);
 		  default: objMaskSel <= objIndex[2:0];
 		endcase
    end // end always
-	
+
    assign objMaskOn = objMask[objMaskSel];
    assign objPosOn = (pixelNum > objPos) && ({1'b0, pixelNum} <= {1'b0, objPos} + 9'd72);
    assign pixelOn = objSizeOn && objMaskOn && objPosOn;
-	
+
 endmodule
 
 
@@ -737,8 +737,8 @@ module objPlayersPixelOn(pixelNum, objPos, objSize, objMask, plReset, pixelOn);
    reg [2:0]   objMaskSel;
 	assign objIndex = pixelNum - objPos - 8'd1;
    assign objByteIndex = 9'b1 << (objIndex[7:3]);
-	
-	
+
+
    always @(objSize, objByteIndex)
    begin
 		case (objSize)
@@ -753,7 +753,7 @@ module objPlayersPixelOn(pixelNum, objPos, objSize, objMask, plReset, pixelOn);
 		  3'd7: objSizeOn <= (objByteIndex & 9'b00001111 & ~plReset) != 0;
 		endcase
    end // end always
-	
+
    always @(objSize, objIndex)
    begin
 		case (objSize)
@@ -762,11 +762,11 @@ module objPlayersPixelOn(pixelNum, objPos, objSize, objMask, plReset, pixelOn);
 		  default: objMaskSel <= objIndex[2:0];
 		endcase
    end // end always
-	
+
    assign objMaskOn = objMask[objMaskSel];
    assign objPosOn = (pixelNum > objPos) && ({1'b0, pixelNum} <= {1'b0, objPos} + 9'd72);
    assign pixelOn = objSizeOn && objMaskOn && objPosOn;
-	
+
 endmodule
 
 

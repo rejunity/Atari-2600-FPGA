@@ -22,7 +22,7 @@ module Atari2600(CLOCKPIXEL, // 3.58 Mhz pixel clock input
 	SW_DIFF, // Difficulty switch input
 	SW_SELECT, // Select switch input
 	SW_START, // Start switch input
-	Leds, HEX4, HEX5, 
+	Leds, HEX4, HEX5,
 	JOY_A_in, // Joystick A inputs
 	JOY_B_in); // Joystick B inputs
 	input CLOCKPIXEL, CLOCKBUS;
@@ -35,11 +35,11 @@ module Atari2600(CLOCKPIXEL, // 3.58 Mhz pixel clock input
 	input SW_COLOR, SW_SELECT, SW_START;
 	input [1:0] SW_DIFF;
 	input [4:0] JOY_A_in, JOY_B_in;
-	
+
 	// debug
 	output [9:0] Leds;
 	output [7:0] HEX4, HEX5;
-	
+
 	// MOS6507 CPU
 	wire [12:0] CPU_Addr;
 	reg [7:0] CPU_Din;
@@ -48,11 +48,11 @@ module Atari2600(CLOCKPIXEL, // 3.58 Mhz pixel clock input
 	wire CPU_CLK_n;
 	wire CPU_RDY;
 	wire CPU_RES_n;
-	
-	assign ROM_RW_n = CPU_R_W_n;
-	
 
-	
+	assign ROM_RW_n = CPU_R_W_n;
+
+
+
 	MOS6507 cpu(.A(CPU_Addr), .Din(CPU_Din), .Dout(CPU_Dout), .R_W_n(CPU_R_W_n),
 						.CLK_n(CPU_CLK_n), .RDY(CPU_RDY), .RES_n(CPU_RES_n));
 
@@ -103,7 +103,7 @@ module Atari2600(CLOCKPIXEL, // 3.58 Mhz pixel clock input
 	wire [3:0] audiov0, audiov1;
 	wire aud0, aud1;
 	wire [15:0] AUD_SIGNAL;
-	
+
 	TIA t1(.A(TIA_Addr), .Din(TIA_Din), .Dout(TIA_Dout), .CS_n(TIA_CS_n), .CS(TIA_CS),
 		.R_W_n(TIA_R_W_n), .RDY(TIA_RDY), .MASTERCLK(TIA_MASTERCLK), .CLK2(TIA_CLK2),
 		.idump_in(TIA_dump), .Ilatch(TIA_Ilatch), .HSYNC(TIA_HSYNC), .HBLANK(TIA_HBLANK),
@@ -114,11 +114,11 @@ module Atari2600(CLOCKPIXEL, // 3.58 Mhz pixel clock input
 		.audv1( audiov1) 		//audio volume for use with external xformer module
 	);
 
-	//======== A U D I O    volume control ========
-	audio_xformer audx( .AUD0( aud0), .AUD1( aud1),
-							  .AUDV0( audiov0), .AUDV1( audiov1), 
-							  .AUD_SIGNAL (AUD_SIGNAL));
-							  
+//;;TEMP_DISABLED MISSING_AUDIO:	//======== A U D I O    volume control ========
+//;;TEMP_DISABLED MISSING_AUDIO:	audio_xformer audx( .AUD0( aud0), .AUD1( aud1),
+//;;TEMP_DISABLED MISSING_AUDIO:							  .AUDV0( audiov0), .AUDV1( audiov1),
+//;;TEMP_DISABLED MISSING_AUDIO:							  .AUD_SIGNAL (AUD_SIGNAL));
+
    //assign Leds[5] = aud0;
 	//assign Leds[6] = aud1;
 

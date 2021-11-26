@@ -24,10 +24,10 @@ module MOS6507 (A, // 13 bit address bus output
 	wire [23:0] T65_A;
 	wire T65_CLK;
 
-	T65 t0(.Mode(2'b0), .Res_n(RES_n), .Clk(T65_CLK), .Rdy(RDY), .Abort_n(1'b1), .IRQ_n(1'b1),
-		.NMI_n(1'b1), .SO_n(1'b1), .R_W_n(R_W_n), .A(T65_A), .DI(Din), .DO(Dout),
-		.Sync(), .EF(), .MF(), .XF(), .ML_n(), .VP_n(), .VDA(), .VPA());
-	
+//;;TEMP_DISABLED 6502_IN_VHDL:	T65 t0(.Mode(2'b0), .Res_n(RES_n), .Clk(T65_CLK), .Rdy(RDY), .Abort_n(1'b1), .IRQ_n(1'b1),
+//;;TEMP_DISABLED 6502_IN_VHDL:		.NMI_n(1'b1), .SO_n(1'b1), .R_W_n(R_W_n), .A(T65_A), .DI(Din), .DO(Dout),
+//;;TEMP_DISABLED 6502_IN_VHDL:		.Sync(), .EF(), .MF(), .XF(), .ML_n(), .VP_n(), .VDA(), .VPA());
+
 	assign A = T65_A[12:0];
 	assign T65_CLK = ~CLK_n;
 

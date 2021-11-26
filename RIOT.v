@@ -22,8 +22,8 @@ module RIOT(A, // Address bus input
 				PBin, // 8 bit port B input
 				PBout, // 8 bit port B output
 				HEX4, HEX5); // debugsssssss
-				
-				
+
+
 	input [6:0] A;
 	input [7:0] Din;
 	output [7:0] Dout;
@@ -63,11 +63,11 @@ module RIOT(A, // Address bus input
 	assign op = {RS_n, R_W_n, A[4:0]};
 	// Registered data in
 	reg [7:0] R_Din;
-	
 
-	// debugssss
-  SEG7_LUT seg4 ( HEX4, (RAM[56] == 8'd4) ? RAM[55][3:0] : 0);						// 47d => $AF 
-  SEG7_LUT seg5 ( HEX5, (RAM[56] == 8'd4) ? RAM[55][7:4] : 0); 					// MsPacMan $B7
+
+//;;TEMP_DISABLED DEBUG_LED:// debugssss
+//;;TEMP_DISABLED DEBUG_LED:	SEG7_LUT seg4 ( HEX4, (RAM[56] == 8'd4) ? RAM[55][3:0] : 0);						// 47d => $AF
+//;;TEMP_DISABLED DEBUG_LED:	SEG7_LUT seg5 ( HEX5, (RAM[56] == 8'd4) ? RAM[55][7:4] : 0); 					// MsPacMan $B7
 
 	integer cnt;
 
@@ -112,13 +112,13 @@ module RIOT(A, // Address bus input
 			default: PA7_Int_Flag <= PA7_Int_Flag |
 						(PA7 != R_PA7 & PA7 == PA7_Int_Mode);
 			endcase
-			
+
 			// Process the current operation
 			casex(op)
 			// RAM access
 			`READ_RAM: Dout <= RAM[A];
 			`WRITE_RAM: RAM[A] <= Din;
-	
+
 			// Port A data access
 			`READ_DRA: Dout <= (PAin & ~DDRA) | (DRA & DDRA);
 			`WRITE_DRA: DRA <= Din;
@@ -126,7 +126,7 @@ module RIOT(A, // Address bus input
 			`READ_DDRA: Dout <= DDRA;
 			`WRITE_DDRA: DDRA <= Din;
 			// Port B data access
-			`READ_DRB: Dout <= (PBin & ~DDRB) | (DRB & DDRB); 
+			`READ_DRB: Dout <= (PBin & ~DDRB) | (DRB & DDRB);
 			`WRITE_DRB: DRB <= Din;
 			// Port B direction register access
 			`READ_DDRB: Dout <= DDRB;
@@ -137,7 +137,7 @@ module RIOT(A, // Address bus input
 			`READ_INT_FLAG: Dout <= {Timer_Int_Flag, PA7_Int_Flag, 6'b0};
 
 			// Enable the port A interrupt
-			`WRITE_EDGE_DETECT: 
+			`WRITE_EDGE_DETECT:
 				begin
 					PA7_Int_Mode <= A[0]; PA7_Int_Enable <= A[1];
 				end
@@ -161,7 +161,7 @@ module RIOT(A, // Address bus input
 		end
 	end
 	// Update the timer at the negative edge of the clock
-	
+
 	always @(negedge CLK)
 	begin
 		// Reset operation
@@ -175,7 +175,7 @@ module RIOT(A, // Address bus input
 		// Otherwise, process timer operations
 		else casex (R_op)
 		// Write value to the timer and update the prescaler based on the address
-			`WRITE_TIMER: 
+			`WRITE_TIMER:
 			begin
 				Timer <= {1'b0, R_Din};
 				Timer_Mode <= R_op[1:0];
@@ -196,7 +196,7 @@ module RIOT(A, // Address bus input
 						end
 						else
 							Prescaler <= PRESCALER_VALS[Timer_Mode];
-							
+
 						Timer <= Timer - 9'b1;
 					end
 				end
