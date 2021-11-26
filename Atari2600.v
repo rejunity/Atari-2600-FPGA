@@ -106,7 +106,7 @@ module Atari2600(CLOCKPIXEL, // 3.58 Mhz pixel clock input
 
 	TIA t1(.A(TIA_Addr), .Din(TIA_Din), .Dout(TIA_Dout), .CS_n(TIA_CS_n), .CS(TIA_CS),
 		.R_W_n(TIA_R_W_n), .RDY(TIA_RDY), .MASTERCLK(TIA_MASTERCLK), .CLK2(TIA_CLK2),
-		.idump_in(TIA_dump), .Ilatch(TIA_Ilatch), .HSYNC(TIA_HSYNC), .HBLANK(TIA_HBLANK),
+		.idump_in(TIA_Idump), .Ilatch(TIA_Ilatch), .HSYNC(TIA_HSYNC), .HBLANK(TIA_HBLANK),
 		.VSYNC(TIA_VSYNC), .VBLANK(TIA_VBLANK), .COLOROUT(TIA_COLOROUT), .RES_n(TIA_RES_n), .Leds( Leds), .HEX4(HEX4), .HEX5(HEX5),
 		.AUD0( aud0), 			//audio pin 0
 		.AUD1( aud1), 			//audio pin 1
