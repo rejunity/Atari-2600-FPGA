@@ -9,4 +9,4 @@ Based on the Daniel Beer's earlier work ["Atari on an FPGA"](https://people.ece.
 2. Minimize vendor dependent code, move it out of the main files.
 3. Make codebase compatible with the open-source tools: [iverilog](http://iverilog.icarus.com/), [yosys](https://github.com/YosysHQ/yosys).
 4. Try to fit on open-source [iCEBreaker FPGA](https://www.crowdsupply.com/1bitsquared/icebreaker-fpga) (Lattice iCE40UP5k).
-5. ASIC :)
+5. [ASIC](https://www.zerotoasiccourse.com/)! :)
