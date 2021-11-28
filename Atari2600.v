@@ -6,25 +6,25 @@ Atari2600.v
 Atari system module. Expects clock, controller and switch inputs and a ROM port.
 Outputs are the video signal and NTSC control signals.
 */
-module Atari2600(CLOCKPIXEL, // 3.58 Mhz pixel clock input
-	CLOCKBUS, // 1.19 Mhz bus clock input
-	COLOROUT, // 8 bit indexed color output
-	ROM_CS, // ROM chip select output
-	ROM_Addr, // ROM address output
-	ROM_Dout, // ROM data input
-	ROM_RW_n, // R_Wn of ROM (output)
-	RES_n, // Active low reset input
-	HSYNC, // Video horizontal sync output
-	HBLANK, // Video horizontal blank output
-	VSYNC, // Video verical sync output
-	VBLANK, // Video verical blank output
-	SW_COLOR, // Color/BW switch input
-	SW_DIFF, // Difficulty switch input
-	SW_SELECT, // Select switch input
-	SW_START, // Start switch input
-	Leds, HEX4, HEX5,
-	JOY_A_in, // Joystick A inputs
-	JOY_B_in); // Joystick B inputs
+module Atari2600(	CLOCKPIXEL, // 3.58 Mhz pixel clock input
+					CLOCKBUS, // 1.19 Mhz bus clock input
+					COLOROUT, // 8 bit indexed color output
+					ROM_CS, // ROM chip select output
+					ROM_Addr, // ROM address output
+					ROM_Dout, // ROM data input
+					ROM_RW_n, // R_Wn of ROM (output)
+					RES_n, // Active low reset input
+					HSYNC, // Video horizontal sync output
+					HBLANK, // Video horizontal blank output
+					VSYNC, // Video verical sync output
+					VBLANK, // Video verical blank output
+					SW_COLOR, // Color/BW switch input
+					SW_DIFF, // Difficulty switch input
+					SW_SELECT, // Select switch input
+					SW_START, // Start switch input
+					Leds, HEX4, HEX5,
+					JOY_A_in, // Joystick A inputs
+					JOY_B_in); // Joystick B inputs
 	input CLOCKPIXEL, CLOCKBUS;
 	output [7:0] COLOROUT;
 	output ROM_CS, ROM_RW_n;
