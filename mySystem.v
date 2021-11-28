@@ -273,7 +273,6 @@ module MySystem(
 			data_reg <= {8'b0,pixelColor[curReadIndex]};
 			curReadIndex <= curReadIndex + 9'd1;
 		end
-		MySystem.v 5/5
 		// When the VGA controller needs the SRAM, retreive pixels from SRAM
 		else
 		begin
